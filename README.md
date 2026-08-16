@@ -43,3 +43,40 @@ O ecossistema dispõe de diversas ferramentas para facilitar o gerenciamento e v
 - **MongoDB Atlas:** Solução de banco de dados na nuvem (*Cloud*).
 - **MongoDB Compass:** Interface gráfica (*GUI*) para exploração de dados.
 - **MongoDB Charts:** Ferramenta para criação de dashboards e visualização de dados.
+<img width="771" height="396" alt="crud-operations" src="https://github.com/user-attachments/assets/d458b1e8-4774-4893-8032-8d0caa47262e" />
+
+- Exibir os bancos de dados
+
+  `show databases`
+
+- Criar banco de dados
+
+  `use loja_informatica`
+
+- Criar nova collection
+
+   `db.createCollection("cliente")`
+
+- Mostar todas as collections
+
+  `show collections`
+
+- Mostrar todos os documentos/objetos
+
+   `db.cliente.find()`
+
+- Insere apenas 1 document (objeto)
+
+   `db.cliente.insertOne({   "nome": "jefté",   "idade": 35,   "pets": ["dora", "sabrina"],      "endereco": {    "logradouro": "Sossego"   }})`
+
+- Inserir Muitos documents de uma vez
+
+  `db.cliente.insertMany([{ "nome": "Brenno"}, { "nome": "João"}, { "nome": "MAria"}, { "nome": "José"}, { "nome": "Noé"}])`
+
+- Buscar pelo campo
+
+   `db.cliente.find({"nome": "José"})`
+
+- Buscar pelo identificador único
+
+   `db.cliente.find({_id: ObjectId('6a7bbab007ff2cf8649f68a9'),})`
