@@ -48,6 +48,8 @@
 
 **Ex 9 Ordena os clientes por idade em ordem decrescente.**
 
+`db.clientes.find().sort({ idade: -1 })`
+
 **Ex 10 Exibe somente clientes ativos com mais de 30 anos.**
 
 `db.customers.find({ active: true, age: { $gt: 30 } }, { _id: 0, name: 1 })`
