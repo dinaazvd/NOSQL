@@ -57,40 +57,40 @@
 
 **2.1. Mostrar apenas os nomes dos clientes.**
 
-db.customers.find({}, {"_id": 0, 'name':1})
+`db.customers.find({}, {"_id": 0, 'name':1})`
 
 **2.2. Contar quantos clientes existem.**
 
-db.customers.countDocuments()
+`db.customers.countDocuments()`
 
 **2.3.Contar apenas os clientes ativos.**
 
-db.customers.countDocuments({"active": true})
+`db.customers.countDocuments({"active": true})`
 
 **2.4.Mostrar o cliente com maior pontuação.**
 
-db.customers.find().sort({"points": -1}).limit(1)
+`db.customers.find().sort({"points": -1}).limit(1)`
 
 **2.5.Mostrar o cliente com menor idade.**
 
-db.customers.find().sort({"age": 1}).limit(1)
+`db.customers.find().sort({"age": 1}).limit(1)`
 
 **2.6. Mostrar apenas clientes com pontuação entre 100 e 400.**
 
-db.customers.find({"points": { $gte: 100, $lte: 400}})
+`db.customers.find({"points": { $gte: 100, $lte: 400}})`
 
 **2.7. Mostrar apenas clientes das cidades de Salvador ou São Paulo.**
  
-db.customers.find({city: {$in: ["Salvador", "São paulo"]}})
+`db.customers.find({city: {$in: ["Salvador", "São paulo"]}})`
 
 **2.8. Mostrar todos os clientes ordenados por nome.**
 
-db.customers.find().sort({nome: 1})
+`db.customers.find().sort({nome: 1})`
 
 **2.9. Mostrar apenas os três primeiros clientes.**
 
-db.customers.find().limit(3)
+`db.customers.find().limit(3)`
 
 **2.10. Mostrar apenas os clientes inativos.**
 
-db.customers.find({"active": false})
+`db.customers.find({"active": false})`
