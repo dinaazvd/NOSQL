@@ -85,57 +85,54 @@ O ecossistema dispõe de diversas ferramentas para facilitar o gerenciamento e v
 
 **Identificadores Únicos, Tipos de Dados, Projeções e Padrões Avançados de Relacionamento (1:1, 1:N, N:M)**
 
+*Instrutor: Prof. Jefté Goes*
+
+---
+
 ## 1. Identificadores Únicos (`_id`)
 
 * **Obrigatoriedade:** Todo documento no MongoDB deve possuir obrigatoriamente um campo chave denominado `_id`.
-
 * **Geração Automática:** Caso não seja informado, o MongoDB gera por padrão um `ObjectId()` de 12 bytes.
-
 * **Customização:** É possível definir valores arbitrários e personalizados para o `_id` diretamente no `insertOne`:
 
-  ```
-  db.products.insertOne({
-    "_id": "my-custom-id",
-    "name": "gloves"
-  })
-  
-  ```
+```javascript
+db.products.insertOne({
+  "_id": "my-custom-id",
+  "name": "gloves"
+})
+```
+
+---
 
 ## 2. Documentos Incorporados (*Embedded Documents*)
 
-* Permitem armazenar dados relacionados diretamente dentro do documento principal.
+Permitem armazenar dados relacionados diretamente dentro do documento principal.
 
 * **Vantagens:**
-
   * Elimina a necessidade de operações de junção de coleções (*joins* / `$lookup`) de alto custo computacional.
-
   * Excelente desempenho para dados que são acessados em conjunto.
-
 * **Limitações Importantes:**
-
   * **Aninhamento:** Suporta até 100 níveis de aninhamento (*nesting*).
-
   * **Tamanho Máximo:** O documento BSON possui tamanho limite estrito de **16 MB**.
+
+---
 
 ## 3. Projeção (*Projection*) e Flexibilidade de Schema
 
 ### Projeção (*Projection*)
 
 * Define quais atributos específicos devem retornar em uma consulta de busca.
-
 * **Benefícios:** Evita tráfego desnecessário de dados na rede, economiza largura de banda e memória da aplicação consumidora.
 
 ### Flexibilidade de Schema (*Schema-less* / Schema Flexível)
 
 * O MongoDB não impõe schemas estáticos a nível de banco de dados por padrão.
-
 * Documentos dentro da mesma coleção podem possuir diferentes estruturas e campos (*polimorfismo*).
-
 * Permite rápida evolução de código sem necessidade de rotinas de migração pesadas (*DDL migrations*).
-
 * A aplicação pode, opcionalmente, impor validações estruturais via **JSON Schema**.
-
 * **Espectro de Schemas:** Vai do "Caos" (estruturas totalmente divergentes), passando por "Dados Extras", até a "Igualdade Completa" (padrão relacional/SQL).
+
+---
 
 ## 4. Tipos de Dados Suportados
 
@@ -147,122 +144,175 @@ O ecossistema dispõe de diversas ferramentas para facilitar o gerenciamento e v
 | **Datas & Tempo** | `ISODate`, `Timestamp` | `ISODate("2026-09-15")` |
 | **Estruturas Complexas** | `Embedded Document`, `Array` | `{ "a": { ... } }`, `["item1", "item2"]` |
 
+---
+
 ## 5. Perguntas Essenciais de Arquitetura & Modelagem
 
 Antes de definir as coleções e schemas, deve-se avaliar:
 
 1. **Quais dados são necessários?** Define os campos e dependências.
-
 2. **Onde o dado é consumido?** Define as coleções e agrupamentos de atributos.
-
 3. **Qual o tipo de exibição?** Determina as consultas (*queries*) prioritárias.
-
 4. **Qual a proporção Leitura vs. Escrita?**
-
    * **Muitas Consultas (*Read-Heavy*):** Otimiza o dado pronto no formato exigido pela interface/cliente. Prioriza **Documentos Incorporados** (*Embedded*).
-
    * **Muitas Gravações (*Write-Heavy*):** Otimiza para evitar duplicação ou redundância, permitindo alterações atômicas em local único. Prioriza **Referências** (*References*).
+
+---
 
 ## 6. Padrões de Relacionamento
 
 ### 6.1. Relacionamento 1:1 (Um para Um)
 
-* **Embedded (Incorporado):** Quando os dados pertencem exclusivamente à entidade principal e são lidos conjuntamente.
+#### A) Embarcado / Incorporado (*Embedded*)
+Quando os dados pertencem exclusivamente à entidade principal e são lidos conjuntamente:
 
-  * *Exemplo:* Paciente e Resumo da Doença (`diseaseSummary`).
+```javascript
+db.patients.insertOne({
+  name: "Jefté",
+  age: 35,
+  diseaseSummary: {
+    diseases: ["cold", "broken leg"]
+  }
+})
+```
 
-    ```
-    db.patients.insertOne({
-      name: "Jefté",
-      age: 35,
-      diseaseSummary: {
-        diseases: ["cold", "broken leg"]
-      }
-    })
-    
-    ```
+#### B) Por Referência (*References*)
+Quando as entidades têm ciclo de vida independente:
 
-* **References (Referência):** Quando as entidades têm ciclo de vida independente.
+```javascript
+// 1. Cria a pessoa
+db.persons.insertOne({
+  name: "Jefté",
+  age: 35,
+  salary: 3000
+})
 
-  * *Exemplo:* Pessoa e Carro via `ObjectId`.
+// 2. Cria o carro referenciando o _id do proprietário
+db.cars.insertOne({
+  model: "BMW",
+  price: 40000,
+  owner: ObjectId("6aa9e2cee9c288ce1241317e")
+})
+```
 
-    ```
-    db.cars.insertOne({
-      model: "BMW",
-      owner: ObjectId("5b9...")
-    })
-    
-    ```
+---
 
 ### 6.2. Relacionamento 1:N (Um para Muitos)
 
-* **Embedded (Incorporado):** Quando os subitens pertencem ao contexto principal e o número de itens é previsível e limitado.
+#### A) Embarcado / Incorporado (*Embedded*)
+Quando os subitens pertencem ao contexto principal e o volume de dados é previsível e limitado:
 
-  * *Exemplo:* Tópico de fórum com array de respostas (`answers`).
+```javascript
+db.questionThreads.insertOne({
+  creator: "Jefté",
+  question: "How does that work?",
+  answers: [
+    { text: "Like that." },
+    { text: "Thanks!" }
+  ]
+})
+```
 
-* **References (Referência):** Quando o número de itens filhos é potencialmente ilimitado, evitando estourar o limite de 16MB.
+#### B) Por Referência (*References*)
+Quando o número de itens filhos é potencialmente ilimitado, evitando estourar o limite de 16 MB:
 
-  * *Exemplo:* Cidade e Cidadãos (milhões de habitantes apontam para o `cityId`).
+```javascript
+// 1. Cria a cidade
+db.cities.insertOne({
+  name: "New York City",
+  coordinates: { lat: 21, lng: 55 }
+})
 
-    ```
-    db.citizens.insertMany([
-      { name: "Jefté", cityId: ObjectId("5b9...") },
-      { name: "Brenno", cityId: ObjectId("5b9...") }
-    ])
-    
-    ```
+// 2. Cria os cidadãos referenciando a cidade pelo cityId
+db.citizens.insertMany([
+  { name: "Jefté Goes", cityId: ObjectId("5b98d6b44d01c52e1637a99f") },
+  { name: "Brenno Salvador", cityId: ObjectId("5b98d6b44d01c52e1637a99f") }
+])
+```
+
+---
 
 ### 6.3. Relacionamento N:M (Muitos para Muitos)
 
-* **Embedded (Snapshot/Histórico):** Congelar o estado do dado em uma das pontas.
+#### A) Embarcado / Incorporado (*Embedded*)
+Usado para armazenar cópias de estado histórico (*snapshot*) ou dados autocontidos:
 
-  * *Exemplo:* Clientes guardando um array de pedidos realizados com produtos embutidos.
+```javascript
+// 1. Cria o cliente
+db.customers.insertOne({
+  name: "Jefté",
+  age: 35
+})
 
-* **Array de Referências:** Ambas as entidades possuem ciclos de vida independentes e dados dinâmicos compartilhados.
+// 2. Adiciona o histórico de pedidos diretamente no cliente
+db.customers.updateOne(
+  {},
+  {
+    $set: {
+      orders: [
+        { title: "A Book", price: 12.99, quantity: 2 }
+      ]
+    }
+  }
+)
+```
 
-  * *Exemplo:* Livros guardando um array de identificadores de Autores.
+#### B) Por Referência (*References*)
+Quando ambas as entidades possuem ciclo de vida independente e precisam ser atualizadas globalmente:
 
-    ```
-    db.books.updateOne({}, {
-      $set: {
-        authors: [
-          ObjectId("5b98d9e44d01c52e1637a9a6"),
-          ObjectId("5b98d9e44d01c52e1637a9a7")
-        ]
-      }
-    })
-    
-    ```
+```javascript
+// 1. Registra os autores
+db.authors.insertMany([
+  { name: "Jorge Amado", age: 78, address: { street: "Bahia" } },
+  { name: "Graciliano Ramos", age: 55, address: { street: "Rio de Janeiro" } }
+])
+
+// 2. Relaciona múltiplos autores no livro através de um array de ObjectIds
+db.books.updateOne(
+  {},
+  {
+    $set: {
+      authors: [
+        ObjectId("5b98d9e44d01c52e1637a9a6"),
+        ObjectId("5b98d9e44d01c52e1637a9a7")
+      ]
+    }
+  }
+)
+```
+
+---
 
 ## 7. Resumo Comparativo: Embedded vs. References
 
 | Característica | Documentos Incorporados (Embedded) | Referências (References) |
 | :--- | :--- | :--- |
-| **Organização** | Agrupa os dados no mesmo documento[cite: 1] | Divide os dados entre coleções distintas[cite: 1] |
-| **Caso de Uso** | Dados que pertencem juntos e sem reuso[cite: 1] | Dados compartilhados ou independentes[cite: 1] |
-| **Desempenho** | Otimizado para leitura rápida (sem joins)[cite: 1] | Evita redundância de escrita[cite: 1] |
-| **Atenção/Gargalo** | Limite máximo de **16 MB** por documento[cite: 1] | Requer consultas adicionais ou `$lookup`[cite: 1] |
+| **Organização** | Agrupa os dados no mesmo documento | Divide os dados entre coleções distintas |
+| **Caso de Uso** | Dados que pertencem juntos e sem reuso | Dados compartilhados ou independentes |
+| **Desempenho** | Otimizado para leitura rápida (sem joins) | Evita redundância de escrita |
+| **Atenção/Gargalo** | Limite máximo de **16 MB** por documento | Requer consultas adicionais ou `$lookup` |
+
+---
 
 ## 8. Guia Prático para Decisão
 
-```
+```text
                 Acesso frequente conjunto?
-                         │
-        ┌────────────────┴────────────────┐
-       SIM                               NÃO
-        │                                 │
-Dados compartilhados?                     │
-        │                                 │
-  ┌─────┴─────┐                           │
- NÃO         SIM                          │
-  │           │                           │
-Tamanho < 16MB?                           │
-  │           │                           │
- ┌┴┐          │                           │
-SIM NÃO       │                           │
- │   │        │                           │
- ▼   └────────┴───────────► ◄─────────────┘
-USE                       USE
-EMBEDDED                  REFERENCES
-
+                            │
+            ┌───────────────┴───────────────┐
+           SIM                             NÃO
+            │                               │
+    Dados compartilhados?                   │
+            │                               │
+      ┌─────┴─────┐                         │
+     NÃO         SIM                        │
+      │           │                         │
+Tamanho < 16MB?   │                         │
+      │           │                         │
+     ┌┴┐          │                         │
+    SIM NÃO       │                         │
+     │   │        │                         │
+     ▼   └────────┴───────────► ◄───────────┘
+    USE                               USE
+  EMBEDDED                        REFERENCES
 ```
