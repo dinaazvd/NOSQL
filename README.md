@@ -139,14 +139,13 @@ O ecossistema dispõe de diversas ferramentas para facilitar o gerenciamento e v
 
 ## 4. Tipos de Dados Suportados
 
-| 
-
-| **Categoria** | **Tipos Comuns** | **Exemplo Prático** | 
-| **Texto & Booleano** | `Text`, `Boolean` | `"Jefté"`, `true` | 
-| **Numéricos** | `Integer (int32)`, `Long (int64)`, `Decimal` | `55`, `10000000000`, `12.99` | 
-| **Identificadores** | `ObjectId` | `ObjectId("5b98d4654d01c52e1637a99b")` | 
-| **Datas & Tempo** | `ISODate`, `Timestamp` | `ISODate("2026-09-15")` | 
-| **Estruturas Complexas** | `Embedded Document`, `Array` | `{ "a": { ... } }`, `["item1", "item2"]` | 
+| Categoria | Tipos Comuns | Exemplo Prático |
+| :--- | :--- | :--- |
+| **Texto & Booleano** | `Text`, `Boolean` | `"Jefté"`, `true` |
+| **Numéricos** | `Integer (int32)`, `Long (int64)`, `Decimal` | `55`, `10000000000`, `12.99` |
+| **Identificadores** | `ObjectId` | `ObjectId("5b98d4654d01c52e1637a99b")` |
+| **Datas & Tempo** | `ISODate`, `Timestamp` | `ISODate("2026-09-15")` |
+| **Estruturas Complexas** | `Embedded Document`, `Array` | `{ "a": { ... } }`, `["item1", "item2"]` |
 
 ## 5. Perguntas Essenciais de Arquitetura & Modelagem
 
@@ -237,11 +236,12 @@ Antes de definir as coleções e schemas, deve-se avaliar:
 
 ## 7. Resumo Comparativo: Embedded vs. References
 
-| **Característica** | **Documentos Incorporados (Embedded)** | **Referências (References)** | 
-| **Organização** | Agrupa os dados no mesmo documento | Divide os dados entre coleções distintas | 
-| **Caso de Uso** | Dados que pertencem juntos e sem reuso | Dados compartilhados ou independentes | 
-| **Desempenho** | Otimizado para leitura rápida (sem joins) | Evita redundância de escrita | 
-| **Atenção/Gargalo** | Limite máximo de **16 MB** por documento | Requer consultas adicionais ou `$lookup` | 
+| Característica | Documentos Incorporados (Embedded) | Referências (References) |
+| :--- | :--- | :--- |
+| **Organização** | Agrupa os dados no mesmo documento[cite: 1] | Divide os dados entre coleções distintas[cite: 1] |
+| **Caso de Uso** | Dados que pertencem juntos e sem reuso[cite: 1] | Dados compartilhados ou independentes[cite: 1] |
+| **Desempenho** | Otimizado para leitura rápida (sem joins)[cite: 1] | Evita redundância de escrita[cite: 1] |
+| **Atenção/Gargalo** | Limite máximo de **16 MB** por documento[cite: 1] | Requer consultas adicionais ou `$lookup`[cite: 1] |
 
 ## 8. Guia Prático para Decisão
 
